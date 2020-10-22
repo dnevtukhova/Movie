@@ -1,64 +1,73 @@
 package com.dnevtukhova.movie.presenter
 
 import com.dnevtukhova.movie.api.FilmsItem
+import com.dnevtukhova.movie.entity.EntityName
 import com.dnevtukhova.movie.entity.Genre
-import com.dnevtukhova.movie.interactor.FilmsListInteractor
-import com.dnevtukhova.movie.view.FilmsListFragment
+import com.dnevtukhova.movie.interactor.FilmsListInteractorImpl
+import com.dnevtukhova.movie.view.view.FilmsListView
+import moxy.MvpPresenter
+import javax.inject.Inject
 
-class FilmsListPresenter(
-    private val filmsInteractor: FilmsListInteractor,
-    var filmsListFragment: FilmsListFragment?
-) {
+class FilmsListPresenter @Inject
+constructor(
+    private val filmsInteractor: FilmsListInteractorImpl
+) : MvpPresenter<FilmsListView>() {
 
     var filmsListLocal: MutableList<FilmsItem> = mutableListOf()
 
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+        getFilms()
+    }
+
+    fun clearList() {
+        viewState.clearList()
+    }
 
     fun getFilms() {
-        filmsListFragment!!.showProgress()
-        filmsInteractor.getFilms(object : FilmsListInteractor.GetFilmsListCallBack {
+        viewState.showProgress()
+        filmsInteractor.getFilms(object : FilmsListInteractorImpl.GetFilmsListCallBack {
             override fun onSuccess(filmsList: MutableList<FilmsItem>) {
                 filmsList.sortWith(compareBy { it.localizedName })
                 filmsListLocal = filmsList
-                filmsListFragment!!.hideProgress()
-                filmsListFragment!!.getGenres(getGenres(filmsList))
-                filmsListFragment!!.getFilms(filmsList)
+                viewState.hideProgress()
+                viewState.getFilmsName(EntityName("Жанры"))
+                viewState.getGenres(getGenres(filmsList))
+                viewState.getGenresName(EntityName("Фильмы"))
+                viewState.getFilms(filmsList)
             }
 
             override fun onError(error: String) {
-                filmsListFragment!!.hideProgress()
-                filmsListFragment!!.getError(error)
+                viewState.hideProgress()
+                viewState.getError(error)
             }
         })
     }
 
-    fun onDestroy() {
-        filmsListFragment = null
-    }
-
     fun onClickFilm(filmsItem: FilmsItem) {
-        filmsListFragment!!.onFilmsClick(filmsItem)
+        viewState.onFilmsClick(filmsItem)
     }
 
-    fun onGenreClick(genre: Genre, position: Int) {
+    fun onGenreClick(genre: Genre) {
         if (filmsListLocal.isNotEmpty()) {
             genre.isClicked = true
-            filmsListFragment!!.onGenreClick(genre, filmInGenre(genre.genre, filmsListLocal))
+            viewState.onGenreClick(genre, filmInGenre(genre.genre, filmsListLocal))
         } else {
-            filmsListFragment!!.showProgress()
-            filmsInteractor.getFilms(object : FilmsListInteractor.GetFilmsListCallBack {
+            viewState.showProgress()
+            filmsInteractor.getFilms(object : FilmsListInteractorImpl.GetFilmsListCallBack {
                 override fun onSuccess(filmsList: MutableList<FilmsItem>) {
                     filmsList.sortWith(compareBy { it.localizedName })
                     filmsListLocal = filmsList
-                    filmsListFragment!!.hideProgress()
-                    filmsListFragment!!.onGenreClick(
+                    viewState.hideProgress()
+                    viewState.onGenreClick(
                         genre,
                         filmInGenre(genre.genre, filmsListLocal)
                     )
                 }
 
                 override fun onError(error: String) {
-                    filmsListFragment!!.hideProgress()
-                    filmsListFragment!!.getError(error)
+                    viewState.hideProgress()
+                    viewState.getError(error)
                 }
             })
         }
@@ -66,11 +75,11 @@ class FilmsListPresenter(
     }
 
     fun getGenres(filmsList: MutableList<FilmsItem>): List<Genre> {
-        var set: MutableSet<Genre> = mutableSetOf()
+        val set: MutableSet<Genre> = mutableSetOf()
         for (n in filmsList) {
             if (n.genres.size != 0) {
-                for (n in n.genres) {
-                    set.add(stringToGenre(n))
+                for (i in n.genres) {
+                    set.add(stringToGenre(i))
                 }
             }
         }
@@ -82,7 +91,7 @@ class FilmsListPresenter(
     }
 
     fun filmInGenre(genre: String, filmsList: MutableList<FilmsItem>): MutableList<FilmsItem> {
-        var listInGenre: MutableList<FilmsItem> = mutableListOf()
+        val listInGenre: MutableList<FilmsItem> = mutableListOf()
         for (n in filmsList) {
             if (n.genres.contains(genre)) {
                 listInGenre.add(n)

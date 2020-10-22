@@ -1,16 +1,19 @@
 package com.dnevtukhova.movie.presenter
 
 import com.dnevtukhova.movie.api.FilmsItem
-import com.dnevtukhova.movie.view.DetailFragment
+import com.dnevtukhova.movie.view.view.FilmsDetailView
+import moxy.MvpPresenter
+import javax.inject.Inject
 
-class DetailPresenter(private val fragment: DetailFragment) {
+class DetailPresenter @Inject
+constructor(): MvpPresenter<FilmsDetailView>() {
 
     fun getDetailFilmInfo(filmsDetail: FilmsItem) {
-        fragment.setImage(filmsDetail)
-        fragment.setDescription(filmsDetail)
-        fragment.setTitle(filmsDetail.localizedName)
-        fragment.setYear("Год выпуска: ${filmsDetail.year}г.")
-        fragment.setRating("Рейтинг: ${filmsDetail.rating}")
+        viewState.setImage(filmsDetail)
+        viewState.setDescription(filmsDetail)
+        viewState.setTitle(filmsDetail.localizedName)
+        viewState.setYear("Год выпуска: ${filmsDetail.year}г.")
+        viewState.setRating("Рейтинг: ${filmsDetail.rating}")
         var genres = ""
         for (n in filmsDetail.genres) {
             genres = if (genres.equals("")) {
@@ -19,6 +22,6 @@ class DetailPresenter(private val fragment: DetailFragment) {
                 "$genres, $n"
             }
         }
-        fragment.setGenre(genres)
+        viewState.setGenre(genres)
     }
 }

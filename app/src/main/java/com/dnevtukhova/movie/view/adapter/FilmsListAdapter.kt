@@ -1,6 +1,5 @@
 package com.dnevtukhova.movie.view.adapter
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,11 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.dnevtukhova.movie.R
 import com.dnevtukhova.movie.api.FilmsItem
+import com.dnevtukhova.movie.entity.EntityName
 import com.dnevtukhova.movie.entity.Genre
 import com.dnevtukhova.movie.entity.RowType
+import kotlinx.android.synthetic.main.fragment_entity_item.view.*
 import kotlinx.android.synthetic.main.fragment_films_item.view.*
 import kotlinx.android.synthetic.main.fragment_genre_item.view.*
-import java.util.*
 
 class FilmsListAdapter(
     private val inflater: LayoutInflater,
@@ -24,17 +24,21 @@ class FilmsListAdapter(
 
     private val items = mutableListOf<RowType>()
 
+    fun clearList() {
+        items.clear()
+    }
+
     fun setItems(films: List<RowType>) {
 
-        val indexies = mutableListOf<FilmsItem>()
+        val indexes = mutableListOf<FilmsItem>()
         for (n in items) {
-            if(n is FilmsItem) {
-                indexies.add(n)
+            if (n is FilmsItem) {
+                indexes.add(n)
 
             }
         }
 
-        for(n in indexies) {
+        for (n in indexes) {
             items.remove(n)
         }
 
@@ -44,10 +48,10 @@ class FilmsListAdapter(
 
     fun setGenre(genre: Genre) {
         for (n in items) {
-            if(n is Genre) {
+            if (n is Genre) {
                 n.isClicked = false
             }
-            if(n is Genre && n.genre==(genre.genre)) {
+            if (n is Genre && n.genre == (genre.genre)) {
                 n.isClicked = true
             }
         }
@@ -61,11 +65,17 @@ class FilmsListAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         when (viewType) {
             0 -> return FilmsViewHolder(
-            inflater
-                .inflate(R.layout.fragment_films_item, parent, false))
+                inflater
+                    .inflate(R.layout.fragment_films_item, parent, false)
+            )
             1 -> return GenreViewHolder(
-            inflater
-                .inflate(R.layout.fragment_genre_item, parent, false))
+                inflater
+                    .inflate(R.layout.fragment_genre_item, parent, false)
+            )
+            2 -> return EntityNameViewHolder(
+                inflater
+                    .inflate(R.layout.fragment_entity_item, parent, false)
+            )
         }
         return FilmsViewHolder(
             inflater
@@ -76,16 +86,19 @@ class FilmsListAdapter(
     override fun getItemCount() = items.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-  //      TODO("Not yet implemented")
         if (holder is FilmsViewHolder) {
             val item = items[position]
             holder.bind(item as FilmsItem)
-            holder.itemView.setOnClickListener { listener.onFilmsClick(item, position)}
+            holder.itemView.setOnClickListener { listener.onFilmsClick(item, position) }
         }
         if (holder is GenreViewHolder) {
             val item = items[position]
             holder.bind(item as Genre)
             holder.itemView.setOnClickListener { listener.onGenreClick(item, position) }
+        }
+        if (holder is EntityNameViewHolder) {
+            val item = items[position]
+            holder.bind(item as EntityName)
         }
     }
 
@@ -108,8 +121,6 @@ class FilmsListAdapter(
                 .centerCrop()
                 .into(filmImage)
         }
-
-
     }
 
     class GenreViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -118,12 +129,18 @@ class FilmsListAdapter(
 
         fun bind(genre: Genre) {
             genreText.text = genre.genre
-            if(genre.isClicked) {
+            if (genre.isClicked) {
                 container.setBackgroundResource(R.drawable.blue_rectangle)
-            }
-            else {
+            } else {
                 container.setBackgroundResource(R.drawable.gray_rectangle)
             }
+        }
+    }
+
+    class EntityNameViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val nameText: TextView = view.textEntity
+        fun bind(name: EntityName) {
+            nameText.text = name.name
         }
     }
 }

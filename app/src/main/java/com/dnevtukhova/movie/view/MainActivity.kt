@@ -3,20 +3,12 @@ package com.dnevtukhova.movie.view
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.dnevtukhova.movie.R
+import dagger.hilt.android.AndroidEntryPoint
 
-class MainActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
         supportActionBar?.hide()
-        supportFragmentManager
-            .beginTransaction()
-            .replace(
-                R.id.fragmentContainer,
-                FilmsListFragment(),
-                FilmsListFragment.TAG
-            )
-            .commit()
     }
-
 }

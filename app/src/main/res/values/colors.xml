@@ -5,4 +5,7 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="colorBlackTintButton">#A1131313</color>
     <color name="colorWight">#ffffff</color>
+    <color name="backGroundColor">#221D1D</color>
+    <color name="textColor">#aeaeae</color>
+    <color name="colorGray">#E6504F4F</color>
 </resources>
